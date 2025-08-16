@@ -11,6 +11,6 @@ public class HomeController {
 
     @GetMapping
     public String healthCheck(){
-        return "Everthing is working fine 😊";
+        return "Everything is working fine 😊";
     }
 }
