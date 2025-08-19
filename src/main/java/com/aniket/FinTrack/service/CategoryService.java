@@ -80,4 +80,28 @@ public class CategoryService {
 
 
     }
+
+    public List<CategoryDTO> getCategoriesByTypeForCurrentProfile(String type){
+
+        ProfileEntity profile = profileService.getCurrentProfile();
+        List<CategoryEntity> categories = categoryRepository.findByTypeAndProfileId(type,profile.getId());
+
+        return categories.stream().map(this::toDTO).toList();
+    }
+
+
+    public  CategoryDTO updateCategory(Long categoryId, CategoryDTO categoryDTO){
+
+        ProfileEntity profile = profileService.getCurrentProfile();
+
+        CategoryEntity existingCategory = categoryRepository.findByIdAndProfileId(categoryId,profile.getId())
+                .orElseThrow( () -> new RuntimeException("Category not found with id"));
+
+        existingCategory.setName(categoryDTO.getName());
+        existingCategory.setIcon(categoryDTO.getIcon());
+
+        categoryRepository.save(existingCategory);
+
+        return toDTO(existingCategory);
+    }
 }
