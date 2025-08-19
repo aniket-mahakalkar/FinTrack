@@ -8,8 +8,11 @@ import lombok.Generated;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,7 +45,7 @@ public class ProfileController {
 
     }
 
-    @PostMapping
+    @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody AuthDTO authDTO){
 
         try{
@@ -55,6 +58,8 @@ public class ProfileController {
 
 
             }
+
+
 
             Map<String , Object> response = profileService.authenticateAndGenerateToken(authDTO);
 

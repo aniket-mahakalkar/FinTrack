@@ -4,11 +4,12 @@ import com.aniket.FinTrack.dto.AuthDTO;
 import com.aniket.FinTrack.dto.ProfileDTO;
 import com.aniket.FinTrack.entity.ProfileEntity;
 import com.aniket.FinTrack.repository.ProfileRepository;
+import com.aniket.FinTrack.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,6 +26,7 @@ public class ProfileService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
     public ProfileDTO registerProfile(ProfileDTO profileDTO){
 
@@ -99,12 +101,13 @@ public class ProfileService {
     public ProfileDTO getPublicProfile(String email) {
 
         ProfileEntity currentUser = null;
+
         if (email == null){
 
             currentUser = getCurrentProfile();
         }else {
 
-            profileRepository.findByEmail(email)
+            currentUser = profileRepository.findByEmail(email)
                     .orElseThrow(() -> new UsernameNotFoundException("Profile not found with email: " + email));
         }
 
@@ -112,27 +115,44 @@ public class ProfileService {
                 .id(currentUser.getId())
                 .fullName(currentUser.getFullName())
                 .email(currentUser.getEmail())
-                .profileImageUrl(currentUser.getFullName())
+                .profileImageUrl(currentUser.getProfileImageUrl())
                 .createdAt(currentUser.getCreatedAt())
                 .updatedAt(currentUser.getCreatedAt())
                 .build();
     }
 
+//    public Map<String, Object> authenticateAndGenerateToken(AuthDTO authDTO) {
+//
+//        try{
+//
+//            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDTO.getEmail(), authDTO.getPassword()));
+//
+//
+//            String token = jwtUtil.generateToken(authDTO.getEmail());
+//            return Map.of(
+//                    "token",token,
+//                    "user", getPublicProfile(authDTO.getEmail())
+//            );
+//        }catch (Exception e){
+//
+//            throw new RuntimeException("Invalid email or password");
+//        }
+//    }
+
     public Map<String, Object> authenticateAndGenerateToken(AuthDTO authDTO) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authDTO.getEmail(), authDTO.getPassword())
+            );
 
-        try{
-
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authDTO.getEmail(), authDTO.getPassword()));
-
-
-
+            String token = jwtUtil.generateToken(authDTO.getEmail());
             return Map.of(
-                    "token","JWT token",
+                    "token", token,
                     "user", getPublicProfile(authDTO.getEmail())
             );
-        }catch (Exception e){
-
-            throw new RuntimeException("Invalid email or password");
+        } catch (Exception e) {
+            throw new BadCredentialsException("Invalid email or password");
         }
     }
+
 }
