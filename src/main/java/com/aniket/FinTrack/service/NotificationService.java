@@ -26,6 +26,7 @@ public class NotificationService {
     @Value("${money.manager.frontend.url}")
     private String frontendUrl;
 
+//    @Scheduled(cron = "0 * * * * *", zone = "IST") To Run Every Minute
     @Scheduled(cron = "0 0 22 * * *",zone = "IST")
     public void sendDailyIncomeExpenseRemainder(){
         log.info("Job started : sendDailyIncomeExpenseRemainder");
@@ -43,8 +44,8 @@ public class NotificationService {
         }
     }
 
-    @Scheduled(cron = "0 * * * * *", zone = "IST")
-//    @Scheduled(cron = "0 0 23 * * *",zone = "IST")
+
+    @Scheduled(cron = "0 0 23 * * *",zone = "IST")
     public void sendDailyExpenseSummary(){
 
         log.info("Job started: sendDailyExpenseSummary()");
@@ -72,7 +73,7 @@ public class NotificationService {
                 emailService.sendEmail(profile.getEmail(), "Your daily Expense summary", body);
             }
         }
-        log.info("Job completed: sendDailyExpenseSummary()");
+        log.info("Job completed: sendDailyExpenseSummary() "+profiles);
 
 
         }
