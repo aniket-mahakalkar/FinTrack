@@ -43,6 +43,7 @@ public class CategoryService {
                 .id(categoryEntity.getId())
                 .profileId(categoryEntity.getProfile() != null ? categoryEntity.getProfile().getId(): null)
                 .name(categoryEntity.getName())
+                .icon(categoryEntity.getIcon())
                 .createdAt(categoryEntity.getCreatedAt())
                 .updatedAt(categoryEntity.getUpdatedAt())
                 .type(categoryEntity.getType())
